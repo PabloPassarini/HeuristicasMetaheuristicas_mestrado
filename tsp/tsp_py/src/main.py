@@ -2,7 +2,7 @@ import time
 import random
 
 from util import calcula_fo, imprime_rota
-from arquivos import obter_parametros_pcv, le_arq_matriz
+from arquivos import obter_parametros_pcv, le_arq_matriz, retorna_arq
 from construcao import (
     constroi_solucao_gulosa_vizinho_mais_proximo,
     constroi_solucao_parcialmente_gulosa_vizinho_mais_proximo,
@@ -16,8 +16,10 @@ from descida import descida_best_improvement, descida_randomica, descida_first_i
 def main():
     random.seed(int(time.time()))
     try:
-        n, melhor_fo_lit = obter_parametros_pcv(r"F:\Projetos\Programacao\HeuristicasMetaheuristicas_mestrado\tsp\tsp_py\data\c50info.txt")
-        d = le_arq_matriz(r"F:\Projetos\Programacao\HeuristicasMetaheuristicas_mestrado\tsp\tsp_py\data\c50.txt", n)
+        c50info = retorna_arq("c50info.txt")
+        c50 = retorna_arq("c50.txt")
+        n, melhor_fo_lit = obter_parametros_pcv(c50info)
+        d = le_arq_matriz(c50, n)
 
     except FileNotFoundError as e:
         print(f"Erro ao ler arquivo de dados: {e}")

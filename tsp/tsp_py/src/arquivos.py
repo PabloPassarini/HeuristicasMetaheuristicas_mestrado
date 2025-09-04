@@ -5,6 +5,13 @@ Tradução do código original de Marcone Jamilson Freitas Souza
 """
 
 import math
+from pathlib import Path
+
+def retorna_arq(nomearq: str):
+    base_dir = Path(__file__).resolve().parent.parent 
+    nomearq = base_dir / 'data' / nomearq
+    return nomearq
+
 
 def le_arq_matriz(nomearq: str, n: int) -> list[list[float]]:
     """
@@ -63,13 +70,15 @@ def obter_parametros_pcv(nomearq: str) -> tuple[int, float]:
     except (ValueError, IndexError) as e:
         raise IOError(f"Erro ao processar o arquivo '{nomearq}'. Verifique o formato. Erro: {e}")
 
+
+
 def imprime_fo(nomearq: str, tempo: float, fo: float, iteracao: int):
     """
     Adiciona uma linha de resultado em um arquivo de log.
     Formato: tempo    iteracao    fo
     """
     try:
-        with open(nomearq, 'a') as arquivo: # 'a' para modo append (adicionar ao final)
+        with open(nomearq, 'a') as arquivo: # 'w' para modo write (sobrescrever)
             # A formatação em f-string simula o fprintf
             arquivo.write(f"{tempo:8.5f}\t  {iteracao:4d}\t  {fo:7.2f}\n")
     except IOError:

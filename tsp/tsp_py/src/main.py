@@ -1,46 +1,31 @@
-# -*- coding: utf-8 -*-
-"""
-Técnicas Heurísticas para resolução do Problema do Caixeiro Viajante
-Tradução do código original de Marcone Jamilson Freitas Souza
-"""
-
 import time
 import random
 
-# Importaremos as funções dos outros módulos que serão criados.
-# Cada um destes corresponderá a um par de arquivos .h/.cpp.
 from util import calcula_fo, imprime_rota
 from arquivos import obter_parametros_pcv, le_arq_matriz
 from construcao import (
     constroi_solucao_gulosa_vizinho_mais_proximo,
     constroi_solucao_parcialmente_gulosa_vizinho_mais_proximo,
     constroi_solucao_gulosa_insercao_mais_barata,
+    constroi_solucao_parcialmente_gulosa_insercao_mais_barata,
     constroi_solucao_aleatoria
 )
 from menus import menu_principal, menu_solucao_inicial, menu_ag
-from descida import descida_best_improvement
+from descida import descida_best_improvement, descida_randomica, descida_first_improvement
 
 def main():
-    """
-    Função principal que executa o programa.
-    """
-    # Pega a hora do relógio como semente para números aleatórios
     random.seed(int(time.time()))
-
-    # Obtém parâmetros, como número de cidades (n) e melhor FO da literatura
-    # Nota: Em Python, é mais comum que funções retornem valores em vez de
-    #       usar ponteiros para modificar variáveis externas.
     try:
         n, melhor_fo_lit = obter_parametros_pcv(r"F:\Projetos\Programacao\HeuristicasMetaheuristicas_mestrado\tsp\tsp_py\data\c50info.txt")
-        # A matriz de distâncias será uma lista de listas em Python
         d = le_arq_matriz(r"F:\Projetos\Programacao\HeuristicasMetaheuristicas_mestrado\tsp\tsp_py\data\c50.txt", n)
+
     except FileNotFoundError as e:
         print(f"Erro ao ler arquivo de dados: {e}")
         print("Certifique-se de que os arquivos 'data/c50info.txt' e 'data/c50.txt' existem.")
         return
 
-    s = []  # Vetor (lista) para a solução corrente
-    fo = 0.0 # Função objetivo corrente
+    s = []
+    fo = 0.0
 
     while True:
         escolha = menu_principal()
@@ -49,17 +34,17 @@ def main():
             print("\n\nBye bye!!!\n\n")
             break
         
-        elif escolha == 1:  # Geração de uma solução inicial
+        elif escolha == 1:
             escolha_inicial = menu_solucao_inicial()
             
-            if escolha_inicial == 1: # Gulosa - Vizinho Mais Próximo
+            if escolha_inicial == 1:
                 s = constroi_solucao_gulosa_vizinho_mais_proximo(n, d)
                 fo = calcula_fo(n, s, d)
                 print("\nSolução construída de forma gulosa (Vizinho Mais Próximo):")
                 imprime_rota(s)
                 print(f"Função objetivo = {fo:.2f}")
 
-            elif escolha_inicial == 2: # Parcialmente Gulosa - Vizinho Mais Próximo
+            elif escolha_inicial == 2:
                 alpha = 0.1
                 s = constroi_solucao_parcialmente_gulosa_vizinho_mais_proximo(n, d, alpha)
                 fo = calcula_fo(n, s, d)
@@ -67,24 +52,29 @@ def main():
                 imprime_rota(s)
                 print(f"Função objetivo = {fo:.2f}")
 
-            elif escolha_inicial == 3: # Gulosa - Inserção Mais Barata
+            elif escolha_inicial == 3:
                 s = constroi_solucao_gulosa_insercao_mais_barata(n, d)
                 fo = calcula_fo(n, s, d)
                 print("\nSolução construída de forma gulosa (Inserção Mais Barata):")
                 imprime_rota(s)
                 print(f"Função objetivo = {fo:.2f}")
 
-            elif escolha_inicial == 4: # Parcialmente Gulosa - Inserção Mais Barata
-                print("Ainda não implementado...")
+            elif escolha_inicial == 4:
+                alpha = 0.3
+                s = constroi_solucao_parcialmente_gulosa_insercao_mais_barata(n, d, alpha)
+                fo = calcula_fo(n, s, d)
+                print(f"\nSolução construída de forma parcialmente gulosa (Inserção Mais Barata com alpha={alpha}):")
+                imprime_rota(s)
+                print(f"Função objetivo = {fo:.2f}")
 
-            elif escolha_inicial == 5: # Aleatória
+            elif escolha_inicial == 5:
                 s = constroi_solucao_aleatoria(n)
                 fo = calcula_fo(n, s, d)
                 print("\nSolução construída de forma aleatória:")
                 imprime_rota(s)
                 print(f"Função objetivo = {fo:.2f}")
 
-        elif escolha == 2:  # Descida com estratégia best improvement
+        elif escolha == 2:
             if not s:
                 print("\nÉ necessário gerar uma solução inicial primeiro (Opção 1).")
                 continue
@@ -99,9 +89,38 @@ def main():
             print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
 
         elif escolha == 3:
-            print("Descida Randômica não implementado")
+            if not s:
+                print("\nÉ necessário gerar uma solução inicial primeiro (Opção 1).")
+                continue
+            try:
+                iter_max = int(input("Digite o número máximo de iterações para a Descida Randômica: "))
+            except ValueError:
+                print("Entrada inválida. Usando 1000 iterações como padrão.")
+                iter_max = 1000
+
+            inicio_cpu = time.perf_counter()
+            s, fo = descida_randomica(n, s, d, iter_max)
+            fim_cpu = time.perf_counter()
+
+            print("\nSolução obtida usando a Descida Randômica:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 4:
-            print("Descida com Primeiro de Melhora não implementado")
+            if not s:
+                print("\nÉ necessário gerar uma solução inicial primeiro (Opção 1).")
+                continue
+            
+            inicio_cpu = time.perf_counter()
+            s, fo = descida_first_improvement(n, s, d)
+            fim_cpu = time.perf_counter()
+            
+            print("\nSolução obtida usando a estratégia First Improvement do Método da Descida:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 5:
             print("Multi-Start não implementado")
         elif escolha == 6:
@@ -117,7 +136,7 @@ def main():
         elif escolha == 11:
             print("VNS não implementado")
         
-        elif escolha == 12: # Algoritmos Genéticos
+        elif escolha == 12:
             escolha_ag = menu_ag()
             if escolha_ag == 1:
                 print("Algoritmos Genéticos usando operador OX não implementado")
@@ -134,9 +153,5 @@ def main():
         else:
             print("\nOpção inválida...\n")
 
-    # Em Python, a memória é gerenciada automaticamente (garbage collector),
-    # então não é necessário liberar a memória da matriz 'd' manualmente.
-
-# Ponto de entrada do script em Python
 if __name__ == "__main__":
     main()

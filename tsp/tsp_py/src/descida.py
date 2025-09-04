@@ -1,147 +1,126 @@
-# -*- coding: utf-8 -*-
-"""
-Algoritmos de Busca Local (Descida) para refinar soluções para o TSP.
-Tradução do código original de Marcone Jamilson Freitas Souza.
-
-NOTA: Várias funções no código C++ original estavam incompletas. A lógica
-foi preenchida com base no nome e propósito do algoritmo. A avaliação de
-vizinhança também foi otimizada para maior eficiência.
-"""
-import time
 import random
+import time
 from util import calcula_fo
-from arquivos import limpa_arquivo, imprime_fo
+from arquivos import imprime_fo, limpa_arquivo
 
-def avalia_troca(n: int, s: list, d: list[list[float]], i: int, j: int) -> float:
-    """
-    Calcula de forma EFICIENTE a variação no custo (delta) ao trocar as cidades nas posições i e j.
-    Esta função substitui a lógica ineficiente de 'calcula_delta' do C++.
-    Um delta < 0 significa melhora.
-    """
-    # Garante que i seja o menor índice
-    if i > j:
-        i, j = j, i
 
-    # Cidades atuais nas posições i e j
-    cidade_i, cidade_j = s[i], s[j]
+def calcula_delta(n: int, s: list, d: list[list], i: int, j: int) -> float:
+    i_antes = (i - 1)
+    i_depois = (i + 1)
+    j_antes = (j - 1)
+    j_depois = (j + 1)
 
-    # Vizinhas de i e j no tour
-    # O operador % n garante o comportamento circular do tour
-    antes_i, depois_i = s[(i - 1 + n) % n], s[(i + 1) % n]
-    antes_j, depois_j = s[(j - 1 + n) % n], s[(j + 1) % n]
-    
-    # Caso especial: i e j são adjacentes no tour
-    if j == i + 1 or (i == 0 and j == n - 1):
-        # Arestas a remover: (antes_i, i), (j, depois_j)
-        # Arestas a adicionar: (antes_i, j), (i, depois_j)
-        custo_removido = d[antes_i][cidade_i] + d[cidade_j][depois_j]
-        custo_adicionado = d[antes_i][cidade_j] + d[cidade_i][depois_j]
-        return custo_adicionado - custo_removido
+    if i == 0: i_antes = n - 1
+    if i == n - 1: i_depois = 0
+    if j == 0: j_antes = n - 1
+    if j == n - 1: j_depois = 0
 
-    # Caso geral: i e j não são adjacentes
-    # Arestas a remover: (antes_i, i), (i, depois_i), (antes_j, j), (j, depois_j)
-    # Arestas a adicionar: (antes_i, j), (j, depois_i), (antes_j, i), (i, depois_j)
-    custo_removido = d[antes_i][cidade_i] + d[cidade_i][depois_i] + \
-                     d[antes_j][cidade_j] + d[cidade_j][depois_j]
-                     
-    custo_adicionado = d[antes_i][cidade_j] + d[cidade_j][depois_i] + \
-                       d[antes_j][cidade_i] + d[cidade_i][depois_j]
-    
-    return custo_adicionado - custo_removido
+    delta = d[s[i_antes]][s[i]] + d[s[i]][s[i_depois]] + d[s[j_antes]][s[j]] + d[s[j]][s[j_depois]]
+    return delta
 
-def encontra_melhor_vizinho_swap(n: int, s: list, d: list[list[float]]) -> tuple[int, int, float]:
-    """
-    Explora toda a vizinhança de troca (swap) e retorna o melhor movimento.
-    Retorna: (melhor_i, melhor_j, delta_do_melhor_movimento)
-    """
-    melhor_delta = float('inf')
-    melhor_i, melhor_j = -1, -1
-
-    for i in range(n):
+def melhor_vizinho(n, s, d, fo, melhor_i=-1, melhor_j=-1):
+    fo_melhor_viz = fo
+    fo_viz = 0.0
+    inicioCPU = time.time()
+    for i in range(n - 1):
         for j in range(i + 1, n):
-            delta = avalia_troca(n, s, d, i, j)
-            if delta < melhor_delta:
-                melhor_delta = delta
-                melhor_i, melhor_j = i, j
-    
-    return melhor_i, melhor_j, melhor_delta
+            delta1 = calcula_delta(n, s, d, i, j)
+            s[i], s[j] = s[j], s[i] #Seria o comando swap do c++
+            delta2 = calcula_delta(n, s, d, i, j)
 
-def descida_best_improvement(n: int, s: list, d: list[list[float]]) -> tuple[list, float]:
-    """
-    Aplica a busca local de Descida com a estratégia Best Improvement.
-    A cada iteração, avalia toda a vizinhança e aplica a melhor melhora encontrada.
-    Repete até que nenhum vizinho seja melhor que a solução atual (ótimo local).
-
-    NOTA: O laço principal deste algoritmo estava faltando no C++ e foi implementado.
-    """
-    s_atual = s.copy()
-    fo = calcula_fo(n, s_atual, d)
-    iter = 0
-    
-    limpa_arquivo("DescidaBI.txt")
-    inicio_cpu = time.perf_counter()
-    imprime_fo("DescidaBI.txt", time.perf_counter() - inicio_cpu, fo, iter)
-
-    while True:
-        melhor_i, melhor_j, melhor_delta = encontra_melhor_vizinho_swap(n, s_atual, d)
-        
-        if melhor_delta < -1e-9:  # Usar uma pequena tolerância para melhora
-            # Aplica a troca
-            s_atual[melhor_i], s_atual[melhor_j] = s_atual[melhor_j], s_atual[melhor_i]
-            fo += melhor_delta
-            iter += 1
-            imprime_fo("DescidaBI.txt", time.perf_counter() - inicio_cpu, fo, iter)
-        else:
-            # Atingiu um ótimo local, nenhum vizinho melhora a solução
-            break
+            fo_viz = fo - delta1 + delta2
+            if fo_viz < fo_melhor_viz:
+                fo_melhor_viz = fo_viz
+                melhor_i = i
+                melhor_j = j
             
-    imprime_fo("DescidaBI.txt", time.perf_counter() - inicio_cpu, fo, iter)
-    return s_atual, fo
-
-def descida_first_improvement(n: int, s: list, d: list[list[float]]) -> tuple[list, float]:
-    """
-    Aplica a busca local de Descida com a estratégia First Improvement.
-    Explora a vizinhança em ordem aleatória e aplica a *primeira* melhora que encontrar.
-    Repete até que uma varredura completa da vizinhança não encontre melhora.
-
-    NOTA: O laço principal deste algoritmo estava faltando no C++ e foi implementado.
-    """
-    s_atual = s.copy()
-    fo = calcula_fo(n, s_atual, d)
-    iter = 0
+            s[i], s[j] = s[j], s[i]
     
-    limpa_arquivo("DescidaFI.txt")
+    fimCPU = time.time()
+    imprime_fo('DescidaFI.txt', fimCPU - inicioCPU, fo_melhor_viz, 0)
+    return fo_melhor_viz, melhor_i, melhor_j
+
+
+def descida_randomica(n, s, d, IterMax):
+    Iter = 0
+    fo = calcula_fo(n, s, d)
+    inicioCPU = time.time()
+    fimCPU = time.time()
+    imprime_fo('DescidaFI.txt', fimCPU - inicioCPU, fo, 0)
+    while Iter < IterMax:
+        Iter += 1
+        i = random.randint(1, n - 2)
+        j = random.randint(1, n - 2)
+
+        if i != j:
+            s[i], s[j] = s[j], s[i]
+            fo_novo = calcula_fo(n, s, d)
+            if fo_novo < fo:
+                fo = fo_novo
+            else:
+                s[i], s[j] = s[j], s[i]
+
+    fimCPU = time.time()
+    imprime_fo('DescidaFI.txt', fimCPU - inicioCPU, fo, 0)
+    return s, fo
+
+
+def descida_first_improvement(n, s, d):
+    s_atual = s.copy()
+    fo_atual = calcula_fo(n, s_atual, d)  # FO inicial
+    iter_melhora = 0
+    
     inicio_cpu = time.perf_counter()
-    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo, iter)
+    limpa_arquivo("DescidaFI.txt")
+    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo_atual, iter_melhora)
     
     melhorou = True
     while melhorou:
         melhorou = False
-        indices = list(range(n))
-        random.shuffle(indices) # Explora a vizinhança em ordem aleatória
+        
+        # embaralha os índices das cidades (não inclui 0 e n-1)
+        indices = list(range(1, n - 1))
+        random.shuffle(indices)
 
-        for i_idx in range(n):
-            if melhorou: break
-            for j_idx in range(i_idx + 1, n):
+        for i_idx in range(len(indices)):
+            if melhorou:   # se já achou uma melhora, sai do loop externo também
+                break
+            for j_idx in range(i_idx + 1, len(indices)):
                 i, j = indices[i_idx], indices[j_idx]
-                delta = avalia_troca(n, s_atual, d, i, j)
-
-                if delta < -1e-9:
+                
+                fo_vizinho, melhor_i, melhor_j = melhor_vizinho(n, s_atual, d, fo_atual)
+                if fo_atual < 0 or fo_vizinho < 0:
+                    break
+                if fo_vizinho < fo_atual:
+                    # aplica a troca
                     s_atual[i], s_atual[j] = s_atual[j], s_atual[i]
-                    fo += delta
+                    fo_atual = fo_vizinho
+                    
                     melhorou = True
-                    iter += 1
-                    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo, iter)
-                    break # Sai do laço interno e reinicia a busca
+                    iter_melhora += 1
+                    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo_atual, iter_melhora)
+                    break   # sai do for j_idx
     
-    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo, iter)
-    return s_atual, fo
+    imprime_fo("DescidaFI.txt", time.perf_counter() - inicio_cpu, fo_atual, iter_melhora)
+    return s_atual, fo_atual
 
+def descida_best_improvement(n, s, d):
+    
+    fo = calcula_fo(n, s, d)
+    melhorou = True
+    iteracao = 0
+    inicio_cpu = time.time()
 
-def descida_randomica(n: int, s: list, d: list[list[float]], iter_max: int) -> tuple[list, float]:
-    """
-    Esta função não estava implementada no código C++ original.
-    """
-    print("Algoritmo 'Descida Randômica' não implementado.")
-    # Retorna a solução inicial sem modificação
-    return s, calcula_fo(n, s, d)
+    while melhorou:
+        melhorou = False
+        fo_viz, i, j = melhor_vizinho(n, s, d, fo)
+        if i != -1 and fo_viz < fo and i != 0:
+            s[i], s[j] = s[j], s[i]  # aplica troca
+            fo = fo_viz
+            melhorou = True
+            iteracao += 1
+
+    fim_cpu = time.time()
+    limpa_arquivo("DescidaBI.txt")
+    imprime_fo("DescidaBI.txt", fim_cpu - inicio_cpu, fo, iteracao)
+    return s, fo

@@ -1,11 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Funções para exibir os menus da aplicação e capturar a escolha do usuário.
-Tradução do código original.
-"""
-
 def menu_principal() -> int:
-    """Exibe o menu principal e retorna a escolha válida do usuário."""
     while True:
         print("""
 ******************* Menu Principal *************************
@@ -28,19 +21,15 @@ ATENÇÃO: Necessário gerar solução inicial antes de refinar
         0. Sair
 ************************************************************""")
         try:
-            # O input do usuário sempre vem como string
             escolha = int(input("        Escolha: "))
-            # A validação no C++ era 'escolha < 0 || escolha > 14', mas 15 existe
             if 0 <= escolha <= 15:
                 return escolha
             else:
                 print("\n!!! Opção inválida. Por favor, escolha um número entre 0 e 15. !!!")
         except ValueError:
-            # Captura o erro se o usuário digitar algo que não é um número
             print("\n!!! Entrada inválida. Por favor, digite apenas números. !!!")
 
 def menu_solucao_inicial() -> int:
-    """Exibe o menu de geração de solução inicial e retorna a escolha."""
     while True:
         print("""
 ************ Geração da Solução Inicial ****************
@@ -60,7 +49,6 @@ def menu_solucao_inicial() -> int:
             print("\n!!! Entrada inválida. Por favor, digite apenas números. !!!")
 
 def menu_grasp() -> int:
-    """Exibe o menu de opções para o GRASP."""
     while True:
         print("""
 ******************* Menu GRASP *************************
@@ -77,7 +65,6 @@ def menu_grasp() -> int:
             print("\n!!! Entrada inválida. Por favor, digite apenas números. !!!")
 
 def menu_ag() -> int:
-    """Exibe o menu de operadores para os Algoritmos Genéticos."""
     while True:
         print("""
 **************** Menu Algoritmos Genéticos **********************

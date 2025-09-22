@@ -12,6 +12,9 @@ from construcao import (
 )
 from menus import menu_principal, menu_solucao_inicial, menu_ag
 from descida import descida_best_improvement, descida_randomica, descida_first_improvement
+from SimulatedAnneling import temperaturaInicial
+
+
 
 def main():
     random.seed(int(time.time()))
@@ -104,6 +107,7 @@ def main():
             s, fo = descida_randomica(n, s, d, iter_max)
             fim_cpu = time.perf_counter()
 
+   
             print("\nSolução obtida usando a Descida Randômica:")
             imprime_rota(s)
             print(f"Função objetivo = {fo:.2f}")
@@ -126,7 +130,11 @@ def main():
         elif escolha == 5:
             print("Multi-Start não implementado")
         elif escolha == 6:
-            print("Simulated Annealing não implementado")
+            inicio_cpu = time.perf_counter()
+            temp_inicial = temperaturaInicial(n, s, d, beta=2, gama=0.9, SAmax=500, temp_incial=10) #temp final 0.01
+            print(temp_inicial)
+            fim_cpu = time.perf_counter()
+
         elif escolha == 7:
             print("Busca Tabu não implementado")
         elif escolha == 8:

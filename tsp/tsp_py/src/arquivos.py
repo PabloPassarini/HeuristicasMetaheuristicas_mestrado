@@ -58,7 +58,7 @@ def imprime_fo(nomearq: str, tempo: float, fo: float, iteracao: int):
     """
     try:
         with open(nomearq, 'a') as arquivo: # 'w' para modo write (sobrescrever)
-            arquivo.write(f"{tempo:8.5f}\t  {iteracao:4d}\t  {fo:7.2f}\n")
+            arquivo.write(f"{tempo:.4f}\t  {iteracao}\t  {fo:.16f}\n")
     except IOError:
         print(f"Não foi possível escrever no arquivo '{nomearq}'.")
 

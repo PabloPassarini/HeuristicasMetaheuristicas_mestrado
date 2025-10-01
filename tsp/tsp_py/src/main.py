@@ -12,9 +12,9 @@ from construcao import (
 )
 from menus import menu_principal, menu_solucao_inicial, menu_ag
 from descida import descida_best_improvement, descida_randomica, descida_first_improvement
-from SimulatedAnneling import temperaturaInicial, SimulatedAnnealing
+from SimulatedAnneling import temperaturaInicial, SimAnn
 from MultStart import MultStart
-
+from grasp import metod_GRASP
 
 def main():
     random.seed(int(time.time()))
@@ -138,7 +138,7 @@ def main():
         elif escolha == 6:
             inicio_cpu = time.perf_counter()
             temp_inicial = temperaturaInicial(n, s, d, beta=2, gama=0.9, SAmax=500, temp_incial=10) #temp final 0.01
-            fo, s = SimulatedAnnealing(n, s, d, alpha=0.95, SAmax=500, temp_inicial=temp_inicial, temp_final=0.01)
+            fo, s = SimAnn(n, s, d, alpha=0.95, SAmax=500, temp_inicial=temp_inicial, temp_final=0.01)
             fim_cpu = time.perf_counter()
 
             print("\nSolução obtida usando a estratégia Simulated Annealing:")
@@ -151,7 +151,14 @@ def main():
         elif escolha == 8:
             print("Iterated Local Search não implementado")
         elif escolha == 9:
-            print("GRASP não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = metod_GRASP(n, s, d, 0.1, 100)
+            fim_cpu = time.perf_counter()
+
+            print("\nSolução obtida usando a estratégia GRASP:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
         elif escolha == 10:
             print("VND não implementado")
         elif escolha == 11:

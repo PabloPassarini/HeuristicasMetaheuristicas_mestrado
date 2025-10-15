@@ -12,7 +12,6 @@ def metod_GRASP(n, s, d, alp, GRASPmax):
         s, fo = descida_best_improvement(n, s, d)
         #s, fo = descida_first_improvement(n, s, d)
         #s, fo = descida_randomica(n, s, d, 100)
-        #print(f'Fo_antes: {fo_antes:.4f}  ||  Fo: {fo:.4f}')
         if fo < fo_star:
             fo_star = fo
             s_star = s

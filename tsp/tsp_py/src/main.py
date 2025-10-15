@@ -15,6 +15,9 @@ from descida import descida_best_improvement, descida_randomica, descida_first_i
 from SimulatedAnneling import temperaturaInicial, SimAnn
 from MultStart import MultStart
 from grasp import metod_GRASP
+from ILS import ILS
+from LAHC import LAHC
+
 
 def main():
     random.seed(int(time.time()))
@@ -149,7 +152,15 @@ def main():
         elif escolha == 7:
             print("Busca Tabu não implementado")
         elif escolha == 8:
-            print("Iterated Local Search não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = ILS(n, s, d, n_nivel=15, ILSmax=30)
+            fim_cpu = time.perf_counter()
+
+            print("\nSolução obtida usando a estratégia Iterated Local Search:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 9:
             inicio_cpu = time.perf_counter()
             fo, s = metod_GRASP(n, s, d, 0.1, 100)
@@ -172,7 +183,13 @@ def main():
                 print("Algoritmos Genéticos usando operador ERX não implementado")
 
         elif escolha == 13:
-            print("LAHC não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = LAHC(n, s, d, len(s), m=500)
+            fim_cpu = time.perf_counter()
+            print("\nSolução obtida usando a estratégia LAHC:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
         elif escolha == 14:
             print("Algoritmos Meméticos não implementado")
         elif escolha == 15:

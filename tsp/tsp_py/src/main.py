@@ -17,7 +17,7 @@ from MultStart import MultStart
 from grasp import metod_GRASP
 from ILS import ILS
 from LAHC import LAHC
-
+from BT import busca_tabu
 
 def main():
     random.seed(int(time.time()))
@@ -150,7 +150,15 @@ def main():
             print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
 
         elif escolha == 7:
-            print("Busca Tabu não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = busca_tabu(n, s, d, 7, 100)
+            fim_cpu = time.perf_counter()
+
+            print("\nSolução obtida usando a Busca Tabu:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 8:
             inicio_cpu = time.perf_counter()
             fo, s = ILS(n, s, d, n_nivel=15, ILSmax=30)

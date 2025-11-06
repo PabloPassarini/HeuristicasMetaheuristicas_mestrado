@@ -16,6 +16,8 @@ from SimulatedAnneling import temperaturaInicial, SimAnn
 from MultStart import MultStart
 from grasp import metod_GRASP
 import VNS as vns
+import VND as vnd
+
 
 def main():
     random.seed(int(time.time()))
@@ -160,14 +162,21 @@ def main():
             imprime_rota(s)
             print(f"Função objetivo = {fo:.2f}")
             print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 10:
-            print("VND não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = vnd.VND(n, s, d, 3, fo)
+            fim_cpu = time.perf_counter()
+            print("\nSolução obtida usando a estratégia VND:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
+
         elif escolha == 11:
             inicio_cpu = time.perf_counter()
             fo, s = vns.VNS(n, s, d,20, 3, fo)
             fim_cpu = time.perf_counter()
-
-            print("\nSolução obtida usando a estratégia GRASP:")
+            print("\nSolução obtida usando a estratégia VNS:")
             imprime_rota(s)
             print(f"Função objetivo = {fo:.2f}")
             print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")

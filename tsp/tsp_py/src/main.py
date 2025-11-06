@@ -15,6 +15,7 @@ from descida import descida_best_improvement, descida_randomica, descida_first_i
 from SimulatedAnneling import temperaturaInicial, SimAnn
 from MultStart import MultStart
 from grasp import metod_GRASP
+import VNS as vns
 
 def main():
     random.seed(int(time.time()))
@@ -162,7 +163,14 @@ def main():
         elif escolha == 10:
             print("VND não implementado")
         elif escolha == 11:
-            print("VNS não implementado")
+            inicio_cpu = time.perf_counter()
+            fo, s = vns.VNS(n, s, d,20, 3, fo)
+            fim_cpu = time.perf_counter()
+
+            print("\nSolução obtida usando a estratégia GRASP:")
+            imprime_rota(s)
+            print(f"Função objetivo = {fo:.2f}")
+            print(f"Tempo de CPU = {fim_cpu - inicio_cpu:.6f} segundos")
         
         elif escolha == 12:
             escolha_ag = menu_ag()

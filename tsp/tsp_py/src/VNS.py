@@ -3,8 +3,6 @@ from descida import calcula_delta, descida_best_improvement
 from util import calcula_fo
 
 
-
-
 def VNS(n, s, d, VNS_max, r, fo):
     iter = 0
     melhor_iter = 0
@@ -23,6 +21,7 @@ def VNS(n, s, d, VNS_max, r, fo):
                 k = 1
             else:
                 k += 1
+        print(f"Iter VNS: {iter} \t fo_star: {fo}")
     
     return fo, s
 
@@ -43,28 +42,45 @@ def vizinho_troca_qualquer(n, s, d, fo):
         i = randint(0, n-1)
 
 
-    #delta1 = calcula_delta(n, s, d, i, j)
+    delta1 = calcula_delta(n, s, d, i, j)
     s[i], s[j] = s[j], s[i]
-    #delta2 = calcula_delta(n, s, d, i, j)
+    delta2 = calcula_delta(n, s, d, i, j)
 
-    #fo_viz = fo - delta1 + delta2
-    fo_viz = calcula_fo(n, s, d)
+    fo_viz = fo - delta1 + delta2
+    
     return fo_viz, s
 
-def vizinho_reinsercao1_qualquer(n, s, d, fo):
+def encontra_ij(n):
     j = randint(0, n-1)
     i = randint(0, n-1)
-    while i == j and j != i+1:
+    while i == j: 
         i = randint(0, n-1)
 
-    if i+1 > n: i = -1
-    if j+1 > n: j = -1
+    return i, j
+
+
+def vizinho_reinsercao1_qualquer(n, s, d, fo):
+    while True:
+        i, j = encontra_ij(n)
+        if (i == 0 and j == n-1) or (i == n-1 and j == 0):
+            i, j = encontra_ij(n)
+        else:
+            break
+
+    print(i, j)       
     valor = s[i]
     s.remove(valor)
     s.insert(j+1, valor)
     
-    #fo_viz = fo - (d[i-1][i] + d[i][i+1]) + d[i-1][i+1] - d[j][j+1] + (d[j][i] + d[i][j+1])
-    fo_viz = calcula_fo(n, s, d)
+    if i == n-1:
+        prox_i = 0
+        fo_viz = fo - (d[i-1][i] + d[i][prox_i]) + d[i-1][prox_i] - d[j][j+1] + (d[j][i] + d[i][j+1])
+    elif j == n-1:
+        prox_j = 0
+        fo_viz = fo - (d[i-1][i] + d[i][i+1]) + d[i-1][i+1] - d[j][prox_j] + (d[j][i] + d[i][prox_j])
+    else:
+        fo_viz = fo - (d[i-1][i] + d[i][i+1]) + d[i-1][i+1] - d[j][j+1] + (d[j][i] + d[i][j+1])
+
     return fo_viz, s
 
 def vizinho_reinsercao2_qualquer(n, s, d, fo):

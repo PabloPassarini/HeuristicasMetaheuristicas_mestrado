@@ -140,7 +140,7 @@ for instancia in instancias:
         inst["alpha1"] = 30 #energia
         inst["alpha2"] = 15 #numero de veiculos
         inst["alpha3"] = 40 #demanda
-        inst['max_time'] = 240
+        inst['max_time'] = 120
         inst['start_time'] = time.time()
 
 

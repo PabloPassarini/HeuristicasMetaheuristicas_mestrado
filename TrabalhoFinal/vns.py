@@ -272,6 +272,7 @@ def RVND(s, vns_args, max_vehicles):
     return atual_fo, atual_d, atual_s
 
 
+
 def undo_swap(s, a, i, b, j):
     s[a][i], s[b][j] = s[b][j], s[a][i]
 
